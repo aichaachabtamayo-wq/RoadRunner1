@@ -1,0 +1,25 @@
+DELAY VOOR PLAYER
+
+timeSinceJump = 999
+
+jumpDelay = 500
+
+Update()
+timeSinceJump += dt 
+
+
+Move()
+if(timeSinceJump > jumpDelay) //dus enkel de move doen als DIT
+{
+	"jump"
+	timeSinceJump = 0
+}
+
+ENDLESS ROAD
+
+array road omzetten naar een list
+
+dus list road aanmaken en dan een buffer list aanmaken en steeds 1 verwijderen uit oorspronkelijke list en die toevoegen aan de buffer
+
+
+
