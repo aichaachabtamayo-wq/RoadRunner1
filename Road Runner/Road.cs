@@ -41,9 +41,7 @@ public class Road
         width = newWidth;
         rows = new List<RoadElement>();
         {
-            rows.Add(new RoadElement(RoadElementType.Border, "#", ConsoleColor.White, ConsoleColor.Black));   // titel balk
-            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.Green, ConsoleColor.Black));    // finish zone
-            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.Green, ConsoleColor.Black));    // finish zone
+            rows.Add(new RoadElement(RoadElementType.Border, "#", ConsoleColor.White, ConsoleColor.Black));   // border
             rows.Add(new RoadElement(RoadElementType.Road, "-", ConsoleColor.Gray, ConsoleColor.Black));      // lane 10
             rows.Add(new RoadElement(RoadElementType.Road, "-", ConsoleColor.Gray, ConsoleColor.Black));      // lane 9
             rows.Add(new RoadElement(RoadElementType.Road, "-", ConsoleColor.Gray, ConsoleColor.Black));      // lane 8
@@ -60,7 +58,9 @@ public class Road
             rows.Add(new RoadElement(RoadElementType.Road, "-", ConsoleColor.Gray, ConsoleColor.Black));      // lane 1
             rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.Green, ConsoleColor.Black));    // startpositie speler
             rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.Green, ConsoleColor.Black));    // startpositie speler
-            rows.Add(new RoadElement(RoadElementType.Border, "#", ConsoleColor.White, ConsoleColor.Black));   // controls balk
+            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.Green, ConsoleColor.Black));    // startpositie speler
+            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.Green, ConsoleColor.Black));    // startpositie speler
+            rows.Add(new RoadElement(RoadElementType.Border, "#", ConsoleColor.White, ConsoleColor.Black));   // border
         }
         ;
 

@@ -14,7 +14,6 @@ public enum GameState
 }
 public class Game
 {
-
     protected int width, height;
     protected GameState currentGameState;
     protected GameState previousGameState;
@@ -32,12 +31,12 @@ public class Game
     protected StartGameMenuItem startGameMenuItem;
     protected HighscoresMenuItem highscoresMenuItem;
     protected ExitGameMenuItem exitGameMenuItem;
-    protected bool gameStarted = false; 
+    protected bool gameStarted = false;
     protected double scrollTimer = 0;
     protected double scrollSpeed = 3;
     protected int lastSafeRow = 18;
     protected double moveTimer = 0;
-    protected double moveSpeed = 0.2; 
+    protected double moveSpeed = 0.2;
 
     public GameState CurrentGameState
     {
@@ -67,7 +66,7 @@ public class Game
         uiScore = new UI_Element("Score", 0, 2, 1);
         uiTime = new UI_Element("Time", 0, 15, 1);
         uiLives = new UI_Element("Lives", 3, 28, 1);
-        
+
 
         gameUI.Add(uiScore);
         gameUI.Add(uiTime);
@@ -138,6 +137,7 @@ public class Game
             case GameState.GameOver:
                 if (currentGameState != previousGameState)
                 {
+                    ResetScreen();
                     gameOverScreen.Draw();
                 }
                 break;
@@ -184,6 +184,19 @@ public class Game
                 if (moveTimer >= moveSpeed)
                 {
                     player.Move(key, width, height);
+
+                    int playerRowIndex = (int)player.YPos;
+
+                    //check of die rij binnen de grenzen van road valt
+                    if (playerRowIndex >= 0 && playerRowIndex < road.Rows.Count)
+                    {
+                        //check of de speler op een grass rij staat
+                        if (road.Rows[playerRowIndex].Type == RoadElementType.Grass)
+                        {
+                            lastSafeRow = (int)player.YPos; //sla schermpositie op
+                        }
+                    }
+
                     gameStarted = true;
                     moveTimer = 0; //reset timer
                 }
@@ -214,7 +227,7 @@ public class Game
                 }
                 gameUI.UpdateUIElementValue("Time", (int)stopwatch.ElapsedMilliseconds / 1000);
                 gameUI.UpdateUIElementValue("Lives", player.Lives);
-                
+
                 //check welke road rij de speler zich op bevindt
                 //Player.YPos is de schermpos, maar road.Rows begint op index 0
                 //daarom player.YPos - uiYOffset om de juiste road rij index te krijge
@@ -224,45 +237,38 @@ public class Game
                 if (hit)//als speler geraakt wordt
                 {
                     player.Lives--;// een leven aftrekken
-                    player.YPos =  lastSafeRow; // opgeslagen schermpositie gebruiken
+                    player.YPos = lastSafeRow; // opgeslagen schermpositie gebruiken
                     player.XPos = 20; //respawn op midden vh scherm
-                    
-                    if(player.Lives == 0) // als de speler geen levens meer heeft
-                    {
-                        currentGameState = GameState.GameOver; // ga naar game over screen
-                    }
                 }
-                
+
                 moveTimer += dt; //timer ophogen bij elke frame
 
-                if(gameStarted) //alleen als de speler al bewogen heeft
+                if (gameStarted) //alleen als de speler al bewogen heeft
                 {
                     scrollTimer += dt; //timer start
-                    
-                    if(scrollTimer >= scrollSpeed) //als de timer de speed bereikt
+
+                    if (scrollTimer >= scrollSpeed) //als de timer de speed bereikt
                     {
                         road.Scroll(); //scroll de map
-                        if(player.YPos < height - 2) // als de speler nog niet op de laatste rij zit (rij voor de onderste border dus)
+                         
+                        
+                        player.YPos++;  //verschuift player 1 omlaag ==> zo blijft speler visueel op dezelfde rij staan als map scrollt
+                        if(player.YPos >= height - 1)
                         {
-                            //verschuift player 1 omlaag ==> zo blijft speler visueel op dezelfde rij staan als map scrollt
-                            player.YPos++;
-                            lastSafeRow++;
+                            player.YPos = height - 1;
+                            player.Lives = 0;
                         }
+                        lastSafeRow++;
+                        
                         scrollTimer = 0; //en reset de timer
                     }
                 }
 
-                int playerRowIndex = (int)player.YPos - uiYOffset; 
-
-                //check of die rij binnen de grenzen van road valt
-                if(playerRowIndex >= 0 && playerRowIndex < road.Rows.Count)
-                {
-                    //check of de speler op een grass rij staat
-                    if(road.Rows[playerRowIndex].Type == RoadElementType.Grass)
+                if (player.Lives == 0) // als de speler geen levens meer heeft
                     {
-                        lastSafeRow = (int)player.YPos; //sla schermpositie op
+                        currentGameState = GameState.GameOver; // ga naar game over screen
                     }
-                }
+
                 break;
         }
 

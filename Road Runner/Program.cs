@@ -16,7 +16,7 @@ class Program
     protected static void RunGameLoop(Game game)
     {
 
-        int refreshRate = 25;
+        int refreshRate = 30;
 
         Console.CursorVisible = false; //lijntje om te zien waar je bent aan het typen AFGEZET
 
@@ -42,7 +42,7 @@ class Program
                 game.MovePlayer(key.Key);
             }
 
-            System.Threading.Thread.Sleep(1000 / refreshRate);// deel waar we wachten
+            Thread.Sleep(1000 / refreshRate);// deel waar we wachten
 
             Reset(game); // na elke frame alles wissen en opnieuw tekenen
             game.Draw();
