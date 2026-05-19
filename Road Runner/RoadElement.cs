@@ -8,11 +8,12 @@ public enum RoadElementType
     Road,
     Border
 }
+
 public class RoadElement : GameObject
 {
     protected RoadElementType type;
     protected ConsoleColor backColor;
-    
+
     public RoadElementType Type
     {
         get { return type; }
@@ -32,9 +33,9 @@ public class RoadElement : GameObject
 
     public void Draw(int x, int y)
     {
-        Console.SetCursorPosition(x, y);
+        Console.SetCursorPosition(x, y); // set cursor to the correct position
         Console.ForegroundColor = ForeColor;
         Console.BackgroundColor = BackColor;
-        Console.Write(Symbol);
+        Console.Write(Symbol); // draw the symbol of this road element
     }
 }
