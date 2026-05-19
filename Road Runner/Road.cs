@@ -42,26 +42,26 @@ public class Road
         width = newWidth;
         rows = new List<RoadElement>();
         {
-            rows.Add(new RoadElement(RoadElementType.Border, "#", ConsoleColor.White, ConsoleColor.Black));   // top border
-            rows.Add(new RoadElement(RoadElementType.Road, "-", ConsoleColor.Gray, ConsoleColor.Black));      // lane 10
-            rows.Add(new RoadElement(RoadElementType.Road, "-", ConsoleColor.Gray, ConsoleColor.Black));      // lane 9
-            rows.Add(new RoadElement(RoadElementType.Road, "-", ConsoleColor.Gray, ConsoleColor.Black));      // lane 8
-            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.Green, ConsoleColor.Black));    // safe zone
-            rows.Add(new RoadElement(RoadElementType.Road, "-", ConsoleColor.Gray, ConsoleColor.Black));      // lane 7
-            rows.Add(new RoadElement(RoadElementType.Road, "-", ConsoleColor.Gray, ConsoleColor.Black));      // lane 6
-            rows.Add(new RoadElement(RoadElementType.Road, "-", ConsoleColor.Gray, ConsoleColor.Black));      // lane 5
-            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.Green, ConsoleColor.Black));    // safe zone
-            rows.Add(new RoadElement(RoadElementType.Road, "-", ConsoleColor.Gray, ConsoleColor.Black));      // lane 4
-            rows.Add(new RoadElement(RoadElementType.Road, "-", ConsoleColor.Gray, ConsoleColor.Black));      // lane 3
-            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.Green, ConsoleColor.Black));    // safe zone
-            rows.Add(new RoadElement(RoadElementType.Road, "-", ConsoleColor.Gray, ConsoleColor.Black));      // lane 2
-            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.Green, ConsoleColor.Black));    // safe zone
-            rows.Add(new RoadElement(RoadElementType.Road, "-", ConsoleColor.Gray, ConsoleColor.Black));      // lane 1
-            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.Green, ConsoleColor.Black));    // player start position
-            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.Green, ConsoleColor.Black));    // player start position
-            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.Green, ConsoleColor.Black));    // player start position
-            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.Green, ConsoleColor.Black));    // player start position
-            rows.Add(new RoadElement(RoadElementType.Border, "#", ConsoleColor.White, ConsoleColor.Black));   // bottom border
+            rows.Add(new RoadElement(RoadElementType.Border, "#", ConsoleColor.Gray, ConsoleColor.Black));   // top border
+            rows.Add(new RoadElement(RoadElementType.Road, "=", ConsoleColor.DarkGray, ConsoleColor.Black));      // lane 10
+            rows.Add(new RoadElement(RoadElementType.Road, "=", ConsoleColor.DarkGray, ConsoleColor.Black));      // lane 9
+            rows.Add(new RoadElement(RoadElementType.Road, "=", ConsoleColor.DarkGray, ConsoleColor.Black));      // lane 8
+            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.DarkGreen, ConsoleColor.Black));    // safe zone
+            rows.Add(new RoadElement(RoadElementType.Road, "=", ConsoleColor.DarkGray, ConsoleColor.Black));      // lane 7
+            rows.Add(new RoadElement(RoadElementType.Road, "=", ConsoleColor.DarkGray, ConsoleColor.Black));      // lane 6
+            rows.Add(new RoadElement(RoadElementType.Road, "=", ConsoleColor.DarkGray, ConsoleColor.Black));      // lane 5
+            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.DarkGreen, ConsoleColor.Black));    // safe zone
+            rows.Add(new RoadElement(RoadElementType.Road, "=", ConsoleColor.DarkGray, ConsoleColor.Black));      // lane 4
+            rows.Add(new RoadElement(RoadElementType.Road, "=", ConsoleColor.DarkGray, ConsoleColor.Black));      // lane 3
+            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.DarkGreen, ConsoleColor.Black));    // safe zone
+            rows.Add(new RoadElement(RoadElementType.Road, "=", ConsoleColor.DarkGray, ConsoleColor.Black));      // lane 2
+            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.DarkGreen, ConsoleColor.Black));    // safe zone
+            rows.Add(new RoadElement(RoadElementType.Road, "=", ConsoleColor.DarkGray, ConsoleColor.Black));      // lane 1
+            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.DarkGreen, ConsoleColor.Black));    // player start position
+            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.DarkGreen, ConsoleColor.Black));    // player start position
+            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.DarkGreen, ConsoleColor.Black));    // player start position
+            rows.Add(new RoadElement(RoadElementType.Grass, ":", ConsoleColor.DarkGreen, ConsoleColor.Black));    // player start position
+            rows.Add(new RoadElement(RoadElementType.Border, "#", ConsoleColor.Gray, ConsoleColor.Black));   // bottom border
         }
 
         buffer = new List<RoadElement>();
@@ -83,7 +83,7 @@ public class Road
                 if (x == 0 || x == width - 1) // draw a border # on the left and right side
                 {
                     Console.SetCursorPosition(x + xOffset, y + yOffset);
-                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = ConsoleColor.Gray;
                     Console.Write("#");
                 }
                 else
@@ -166,15 +166,15 @@ public class Road
 
             if (type == 0)
             {
-                Vehicles.Add(new Vehicle(VehicleType.SlowCar, xPosition, rowIndex, ConsoleColor.Red, "[=]", speed * 6, 0));
+                Vehicles.Add(new Vehicle(VehicleType.SlowCar, xPosition, rowIndex, ConsoleColor.DarkRed, "[=]", speed * 6, 0));
             }
             else if (type == 1)
             {
-                Vehicles.Add(new Vehicle(VehicleType.FastCar, xPosition, rowIndex, ConsoleColor.Cyan, "{>}", speed * 8, 0));
+                Vehicles.Add(new Vehicle(VehicleType.FastCar, xPosition, rowIndex, ConsoleColor.DarkBlue, "{>}", speed * 8, 0));
             }
             else
             {
-                Vehicles.Add(new Vehicle(VehicleType.SlowTruck, xPosition, rowIndex, ConsoleColor.Magenta, "[===]", speed * 4, 0));
+                Vehicles.Add(new Vehicle(VehicleType.SlowTruck, xPosition, rowIndex, ConsoleColor.DarkMagenta, "[===]", speed * 4, 0));
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Drawing;
 
 namespace TemplateVSCode;
 
@@ -8,6 +9,7 @@ public enum GameState
     MainMenu,
     HighscoresMenu,
     NameInput,
+    ColorPicker,
     GameRunning,
     GamePaused,
     GameOver,
@@ -30,6 +32,7 @@ public class Game
     protected Menu mainMenu;
     protected HighscoresScreen highScoresMenu;
     protected NameInputScreen nameInputScreen;
+    protected ColorPickerScreen colorPickerScreen;
     protected StartGameMenuItem startGameMenuItem;
     protected HighscoresMenuItem highscoresMenuItem;
     protected ExitGameMenuItem exitGameMenuItem;
@@ -85,6 +88,7 @@ public class Game
         mainMenu = new Menu("MainMenuTxt.txt", ConsoleColor.White, ConsoleColor.Black, ConsoleColor.White, ConsoleColor.DarkRed);
         highScoresMenu = new HighscoresScreen();
         nameInputScreen = new NameInputScreen();
+        colorPickerScreen = new ColorPickerScreen();
         startGameMenuItem = new StartGameMenuItem();
         highscoresMenuItem = new HighscoresMenuItem();
         exitGameMenuItem = new ExitGameMenuItem();
@@ -153,6 +157,13 @@ public class Game
                 {
                     ResetScreen();
                     nameInputScreen.Draw();
+                }
+            break;
+            case GameState.ColorPicker:
+                if (currentGameState != previousGameState)
+                {
+                    ResetScreen();
+                    colorPickerScreen.Draw();
                 }
             break;
         }
@@ -232,8 +243,7 @@ public class Game
                 if (key == ConsoleKey.Enter && nameInputScreen.PlayerName.Length > 0) //if enter is pressed and name is not empty
                 {
                     ResetScreen();
-                    stopwatch.Restart();
-                    currentGameState = GameState.GameRunning; // start the game
+                    currentGameState = GameState.ColorPicker; // start the game
                 }
                 else
                 {
@@ -241,7 +251,27 @@ public class Game
                     ResetScreen();
                     nameInputScreen.Draw(); // redraw the screen with the updated name (so that player sees the new letter being added)
                 }
-
+            break;
+            case GameState.ColorPicker:
+                if (key == ConsoleKey.Enter) // if enter is pressed confirm the color
+                {
+                    player.ForeColor = colorPickerScreen.SelectedColor; // set the player color
+                    ResetScreen();
+                    stopwatch.Restart();
+                    currentGameState = GameState.GameRunning;
+                }
+                else if (key == ConsoleKey.LeftArrow)
+                {
+                    colorPickerScreen.SelectPrevious(); // select previous color
+                    ResetScreen();
+                    colorPickerScreen.Draw(); // redraw with new color
+                }
+                else if (key == ConsoleKey.RightArrow)
+                {
+                    colorPickerScreen.SelectNext(); // select next color
+                    ResetScreen();
+                    colorPickerScreen.Draw(); // redraw with new color
+                }
             break;
         }
     }
