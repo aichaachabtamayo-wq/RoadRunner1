@@ -8,7 +8,7 @@ public class UI
 
     public UI()
     {
-       uiElements = new List<UI_Element>();
+        uiElements = new List<UI_Element>();
     }
 
     public void Add(UI_Element element)
@@ -27,15 +27,13 @@ public class UI
     public void UpdateUIElementValue(string elementName, int newValue)
     {
         bool updated = false;
-        for(int i = 0; i < uiElements.Count && !updated; i++)
+        for (int i = 0; i < uiElements.Count && !updated; i++)
         {
-            if(uiElements[i].Name == elementName) 
+            if (uiElements[i].Name == elementName)
             {
                 uiElements[i].ElementValue = newValue;
-                updated = true; //om niet verder in de lijst te zoeken eens gevonden
+                updated = true; // stop searching once the element is found
             }
         }
     }
-    }
-
-   
+}
