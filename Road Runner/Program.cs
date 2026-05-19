@@ -33,7 +33,7 @@ class Program
             while (Console.KeyAvailable) // check if a key is being pressed
             {
                 ConsoleKeyInfo key = Console.ReadKey(true);
-                game.MovePlayer(key.Key);
+                game.MovePlayer(key.Key, key.KeyChar);
             }
 
             Thread.Sleep(1000 / refreshRate); // wait to control the frame rate
