@@ -7,6 +7,7 @@ public enum GameState
     StartingScreen,
     MainMenu,
     HighscoresMenu,
+    NameInput,
     GameRunning,
     GamePaused,
     GameOver,
@@ -28,6 +29,7 @@ public class Game
     protected Screen gameOverScreen;
     protected Menu mainMenu;
     protected HighscoresScreen highScoresMenu;
+    protected NameInputScreen nameInputScreen;
     protected StartGameMenuItem startGameMenuItem;
     protected HighscoresMenuItem highscoresMenuItem;
     protected ExitGameMenuItem exitGameMenuItem;
@@ -82,6 +84,7 @@ public class Game
         gameOverScreen = new Screen("GameOverScreenTxt.txt");
         mainMenu = new Menu("MainMenuTxt.txt", ConsoleColor.White, ConsoleColor.Black, ConsoleColor.White, ConsoleColor.DarkRed);
         highScoresMenu = new HighscoresScreen();
+        nameInputScreen = new NameInputScreen();
         startGameMenuItem = new StartGameMenuItem();
         highscoresMenuItem = new HighscoresMenuItem();
         exitGameMenuItem = new ExitGameMenuItem();
@@ -145,12 +148,19 @@ public class Game
                     gameOverScreen.Draw();
                 }
                 break;
+            case GameState.NameInput:
+                if(currentGameState != previousGameState)
+                {
+                    ResetScreen();
+                    nameInputScreen.Draw();
+                }
+            break;
         }
 
         previousGameState = currentGameState;
     }
 
-    public void MovePlayer(ConsoleKey key)
+    public void MovePlayer(ConsoleKey key, char keyChar) //KeyChar is to be able to type a name with 'chars'
     {
         switch (currentGameState)
         {
@@ -218,6 +228,21 @@ public class Game
                     currentGameState = GameState.MainMenu;
                 }
                 break;
+            case GameState.NameInput:
+                if (key == ConsoleKey.Enter && nameInputScreen.PlayerName.Length > 0) //if enter is pressed and name is not empty
+                {
+                    ResetScreen();
+                    stopwatch.Restart();
+                    currentGameState = GameState.GameRunning; // start the game
+                }
+                else
+                {
+                    nameInputScreen.HandleInput(key, keyChar); // handle the typed character (add letter or delete letter)
+                    ResetScreen();
+                    nameInputScreen.Draw(); // redraw the screen with the updated name (so that player sees the new letter being added)
+                }
+
+            break;
         }
     }
 
@@ -283,6 +308,7 @@ public class Game
 
                 if (player.Lives == 0) // if the player has no lives left
                 {
+                    highscoreManager.AddHighscore(nameInputScreen.PlayerName, score, "Yellow"); // saving highscore with placeholder color for now
                     currentGameState = GameState.GameOver; // go to game over screen
                 }
                 break;
