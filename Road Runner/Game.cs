@@ -31,12 +31,18 @@ public class Game
     protected StartGameMenuItem startGameMenuItem;
     protected HighscoresMenuItem highscoresMenuItem;
     protected ExitGameMenuItem exitGameMenuItem;
+    protected HighscoreManager highscoreManager;
     protected bool gameStarted = false;
     protected double scrollTimer = 0;
     protected double scrollSpeed = 3;
     protected int lastSafeRow = 18;
     protected double moveTimer = 0;
-    protected double moveSpeed = 0.2;
+    protected double moveSpeed = 0.1;
+    protected bool isRespawning = false; // keeps track of whether the player is currently respawning
+    protected double respawnTimer = 0; // timer for the respawn cooldown
+    protected double respawnDuration = 2; // 2 seconds cooldown after respawning
+    protected int score;
+    protected int highestRow = 18; // keeps track of the highest row the player has reached
 
     public GameState CurrentGameState
     {
@@ -46,7 +52,6 @@ public class Game
 
     public Game(int newWidth, int newHeight)
     {
-
         // set the size
         width = newWidth;
         height = newHeight;
@@ -58,7 +63,6 @@ public class Game
         currentGameState = GameState.StartingScreen;
         previousGameState = GameState.NoGameState;
 
-
         road = new Road(40);
         player = new Player(3, false, 20, 18, "@", ConsoleColor.Yellow);
 
@@ -66,7 +70,6 @@ public class Game
         uiScore = new UI_Element("Score", 0, 2, 1);
         uiTime = new UI_Element("Time", 0, 15, 1);
         uiLives = new UI_Element("Lives", 3, 28, 1);
-
 
         gameUI.Add(uiScore);
         gameUI.Add(uiTime);
@@ -86,6 +89,8 @@ public class Game
         mainMenu.AddMenuItem(startGameMenuItem);
         mainMenu.AddMenuItem(highscoresMenuItem);
         mainMenu.AddMenuItem(exitGameMenuItem);
+
+        highscoreManager = new HighscoreManager(); // loads highscores automatically on creation
     }
 
     public int GetWidth()
@@ -117,12 +122,11 @@ public class Game
             case GameState.HighscoresMenu:
                 if (currentGameState != previousGameState)
                 {
-                    highScoresMenu.Draw(); //dit is dus de titel
-                    highScoresMenu.LoadHighscores(); //en dit is de 'lijst' met high scores of zeggen dat er geen highscores zijn
+                    highScoresMenu.Draw(); // draw the title
+                    highScoresMenu.LoadHighscores(); // draw the list of highscores
                 }
                 break;
             case GameState.GameRunning:
-
                 road.Draw(uiXOffset, uiYOffset);
 
                 foreach (Vehicle vehicle in road.Vehicles)
@@ -144,7 +148,6 @@ public class Game
         }
 
         previousGameState = currentGameState;
-
     }
 
     public void MovePlayer(ConsoleKey key)
@@ -162,7 +165,7 @@ public class Game
                 if (key == ConsoleKey.Enter)
                 {
                     ResetScreen();
-                    mainMenu.ActivateMenuItem(this); //object van de klasse waar ik momenteel in zit
+                    mainMenu.ActivateMenuItem(this); // pass the current game object to the menu item
                 }
                 else if (key == ConsoleKey.UpArrow)
                 {
@@ -180,25 +183,31 @@ public class Game
                 }
                 break;
             case GameState.GameRunning:
-
-                if (moveTimer >= moveSpeed)
+                if (moveTimer >= moveSpeed && !isRespawning) // only move if timer allows and player is not respawning
                 {
                     player.Move(key, width, height);
 
+                    if ((int)player.YPos < highestRow) // if player is higher than ever before
+                    {
+                        highestRow = (int)player.YPos; // update the highest row
+                        score ++; // add points
+                        gameUI.UpdateUIElementValue("Score", score); // update the UI
+                    }
+
                     int playerRowIndex = (int)player.YPos;
 
-                    //check of die rij binnen de grenzen van road valt
+                    // check if the row index is within the bounds of the road
                     if (playerRowIndex >= 0 && playerRowIndex < road.Rows.Count)
                     {
-                        //check of de speler op een grass rij staat
+                        // check if the player is standing on a grass row
                         if (road.Rows[playerRowIndex].Type == RoadElementType.Grass)
                         {
-                            lastSafeRow = (int)player.YPos; //sla schermpositie op
+                            lastSafeRow = (int)player.YPos; // save the current screen position as the last safe position
                         }
                     }
 
                     gameStarted = true;
-                    moveTimer = 0; //reset timer
+                    moveTimer = 0; // reset the move timer
                 }
                 break;
 
@@ -209,7 +218,6 @@ public class Game
                     currentGameState = GameState.MainMenu;
                 }
                 break;
-
         }
     }
 
@@ -228,50 +236,57 @@ public class Game
                 gameUI.UpdateUIElementValue("Time", (int)stopwatch.ElapsedMilliseconds / 1000);
                 gameUI.UpdateUIElementValue("Lives", player.Lives);
 
-                //check welke road rij de speler zich op bevindt
-                //Player.YPos is de schermpos, maar road.Rows begint op index 0
-                //daarom player.YPos - uiYOffset om de juiste road rij index te krijge
+                bool hit = CheckCollision(); // check if the player is hit by a vehicle
 
-                bool hit = CheckCollision(); //check of speler is geraakt door voertuig
-
-                if (hit)//als speler geraakt wordt
+                if (hit && !isRespawning) // only process hit if player is not already respawning
                 {
-                    player.Lives--;// een leven aftrekken
-                    player.YPos = lastSafeRow; // opgeslagen schermpositie gebruiken
-                    player.XPos = 20; //respawn op midden vh scherm
+                    player.Lives--; // subtract a life
+                    player.YPos = lastSafeRow; // respawn at the last safe grass position
+                    player.XPos = 20; // respawn at the center of the screen
+                    isRespawning = true; // start the respawn cooldown
+                    respawnTimer = 0; // reset the timer so cooldown always lasts the full duration
+                    highestRow = lastSafeRow; // reset highestRow to respawn position so player can earn points again
                 }
 
-                moveTimer += dt; //timer ophogen bij elke frame
-
-                if (gameStarted) //alleen als de speler al bewogen heeft
+                if (isRespawning)
                 {
-                    scrollTimer += dt; //timer start
-
-                    if (scrollTimer >= scrollSpeed) //als de timer de speed bereikt
+                    respawnTimer += dt;
+                    if (respawnTimer >= respawnDuration) // if cooldown is over
                     {
-                        road.Scroll(); //scroll de map
-                         
-                        
-                        player.YPos++;  //verschuift player 1 omlaag ==> zo blijft speler visueel op dezelfde rij staan als map scrollt
-                        if(player.YPos >= height - 1)
+                        isRespawning = false; // player can move again
+                        respawnTimer = 0;
+                    }
+                }
+
+                moveTimer += dt; // increment move timer every frame
+
+                if (gameStarted) // only start scrolling after the player has moved
+                {
+                    scrollTimer += dt; // increment scroll timer
+
+                    if (scrollTimer >= scrollSpeed) // if the timer reaches the scroll speed
+                    {
+                        road.Scroll(); // scroll the map
+
+                        player.YPos++; // shift player down so they visually stay on the same row as the map scrolls
+                        if (player.YPos >= height - 1)
                         {
                             player.YPos = height - 1;
-                            player.Lives = 0;
+                            player.Lives = 0; // player dies if pushed off screen
                         }
-                        lastSafeRow++;
-                        
-                        scrollTimer = 0; //en reset de timer
+                        lastSafeRow++; // shift last safe row down with the scroll
+                        highestRow++; // shift highest row down with the scroll
+
+                        scrollTimer = 0; // reset the scroll timer
                     }
                 }
 
-                if (player.Lives == 0) // als de speler geen levens meer heeft
-                    {
-                        currentGameState = GameState.GameOver; // ga naar game over screen
-                    }
-
+                if (player.Lives == 0) // if the player has no lives left
+                {
+                    currentGameState = GameState.GameOver; // go to game over screen
+                }
                 break;
         }
-
     }
 
     public bool CheckCollision()
@@ -279,9 +294,9 @@ public class Game
         bool hit = false;
         foreach (Vehicle car in road.Vehicles)
         {
-            if ((int)player.YPos == (int)car.YPos) //checken of ze op dezelfde rij zitten
+            if ((int)player.YPos == (int)car.YPos) // check if they are on the same row
             {
-                if ((int)player.XPos <= (int)car.XPos + car.Symbol.Length - 1 && (int)player.XPos >= (int)car.XPos) //checken of de player binnen de breedte vh voertuig zit
+                if ((int)player.XPos <= (int)car.XPos + car.Symbol.Length - 1 && (int)player.XPos >= (int)car.XPos) // check if the player is within the width of the vehicle
                 {
                     hit = true;
                 }

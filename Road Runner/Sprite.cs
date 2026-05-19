@@ -4,7 +4,7 @@ namespace TemplateVSCode;
 
 public class Sprite : GameObject
 {
-    protected double xPos; //dit verzanderen van int naar double
+    protected double xPos; //changed this from int to double
     protected double yPos;
     public double XPos
     {

@@ -9,21 +9,15 @@ class Program
 
         // start the game loop
         RunGameLoop(game);
-        
-
     }
 
     protected static void RunGameLoop(Game game)
     {
+        int refreshRate = 25;
 
-        int refreshRate = 30;
+        Console.CursorVisible = false; // hide the cursor so it doesn't appear while typing
 
-        Console.CursorVisible = false; //lijntje om te zien waar je bent aan het typen AFGEZET
-
-        /*Console.BackgroundColor = ConsoleColor.DarkBlue;
-        Console.ForegroundColor = ConsoleColor.Gray;
-        Console.Clear();*/
-        System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch(); //stopwatch die bijhoudt hoelang elke frame duurt
+        System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch(); // stopwatch that tracks how long each frame takes
         stopwatch.Start();
 
         Reset(game);
@@ -32,30 +26,25 @@ class Program
 
         while (true)
         {
-            double dt = stopwatch.Elapsed.TotalSeconds;
-            stopwatch.Restart(); 
+            double dt = stopwatch.Elapsed.TotalSeconds; // time since last frame in seconds
+            stopwatch.Restart();
             game.Update(dt);
 
-            while (Console.KeyAvailable) //wordt er op een toets gedrukt?
+            while (Console.KeyAvailable) // check if a key is being pressed
             {
                 ConsoleKeyInfo key = Console.ReadKey(true);
                 game.MovePlayer(key.Key);
             }
 
-            Thread.Sleep(1000 / refreshRate);// deel waar we wachten
+            Thread.Sleep(1000 / refreshRate); // wait to control the frame rate
 
-            Reset(game); // na elke frame alles wissen en opnieuw tekenen
+            Reset(game); // reset cursor position before redrawing
             game.Draw();
-
         }
     }
 
     protected static void Reset(Game game)
     {
-        //Console.BackgroundColor = ConsoleColor.Black;
-        //Console.ForegroundColor = ConsoleColor.Black;
-        Console.SetCursorPosition(0, 0);
-        game.Draw();
-        Console.SetCursorPosition(0, 0);
+        Console.SetCursorPosition(0, 0); // move cursor to top left before redrawing
     }
 }
