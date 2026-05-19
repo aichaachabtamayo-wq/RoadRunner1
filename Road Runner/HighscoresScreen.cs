@@ -11,16 +11,13 @@ public class HighscoresScreen : Screen
 
     public void LoadHighscores()
     {
-        string highscoresAsText = "";
         StreamReader streamReader = null;
         try
         {
             streamReader = new StreamReader("highscores.json"); 
-
+            string json = streamReader.ReadToEnd();
             //read everything from file and parse to text
             //add highscore as text to "highscoresAsText"
-
-            Console.WriteLine(highscoresAsText);
         }
         catch (Exception e)
         {
@@ -31,8 +28,7 @@ public class HighscoresScreen : Screen
             if(streamReader != null)
             {
                 streamReader.Close();
-            }
-            
+            }  
         }
     }
 }

@@ -8,11 +8,13 @@ public enum VehicleType
     FastCar,
     SlowTruck
 }
+
 public class Vehicle : Sprite
 {
     protected VehicleType type;
     protected double xSpeed;
     protected double ySpeed;
+
     public VehicleType Type
     {
         get { return type; }
@@ -29,8 +31,7 @@ public class Vehicle : Sprite
         set { ySpeed = value; }
     }
 
-
-    public Vehicle(VehicleType newType,int newX, int newY, ConsoleColor newColor, string newSymbol, double newXSpeed, double newYSpeed) : base(newX, newY, newSymbol, newColor)
+    public Vehicle(VehicleType newType, int newX, int newY, ConsoleColor newColor, string newSymbol, double newXSpeed, double newYSpeed) : base(newX, newY, newSymbol, newColor)
     {
         type = newType;
         xSpeed = newXSpeed;
@@ -39,24 +40,24 @@ public class Vehicle : Sprite
 
     public void Move(double dx, double dy, int screenWidth, int screenHeight)
     {
-        xPos += dx; // nieuwe positie = oude positie + stapje
+        xPos += dx; // new position = old position + step
         yPos += dy;
 
-        // van links naar rechts → verdwijnt aan de rechter broder en komt terug aan de linker border
+        // moving left to right: disappears at the right border and reappears at the left border
         if (xPos >= screenWidth - 1 - symbol.Length)
         {
             xPos = 1;
         }
 
-        // van rechts naar links → verdwijnt aan de linker broder en komt terug aan de rechter border
+        // moving right to left: disappears at the left border and reappears at the right border
         else if (xPos <= 1)
         {
             xPos = screenWidth - 1 - symbol.Length;
         }
     }
+
     public override void Update(double dt, int screenWidth, int screenHeight)
     {
         Move(xSpeed * dt, ySpeed * dt, screenWidth, screenHeight);
     }
-
 }

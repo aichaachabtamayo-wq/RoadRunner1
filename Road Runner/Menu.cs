@@ -9,7 +9,8 @@ public class Menu : Screen
     protected ConsoleColor activeItemForegroundColor;
     protected ConsoleColor activeItemBackgroundColor;
     protected int previousActiveMenuItemID;
-    public Menu(string filepath) 
+
+    public Menu(string filepath)
     : base(filepath)
     {
         menuItems = new List<MenuItem>();
@@ -18,11 +19,11 @@ public class Menu : Screen
         activeItemBackgroundColor = ConsoleColor.White;
     }
 
-    public Menu(string filepath, 
-                ConsoleColor foregroundColor, 
-                ConsoleColor backgroundColor, 
-                ConsoleColor newActiveItemForegroundColor, 
-                ConsoleColor newActiveItemBackgroundColor) 
+    public Menu(string filepath,
+                ConsoleColor foregroundColor,
+                ConsoleColor backgroundColor,
+                ConsoleColor newActiveItemForegroundColor,
+                ConsoleColor newActiveItemBackgroundColor)
     : base(filepath, foregroundColor, backgroundColor)
     {
         menuItems = new List<MenuItem>();
@@ -38,7 +39,7 @@ public class Menu : Screen
 
     public void SelectNextItem()
     {
-        if (activeMenuItemID == menuItems.Count - 1)
+        if (activeMenuItemID == menuItems.Count - 1) // if at the last item, wrap around to the first
         {
             activeMenuItemID = 0;
         }
@@ -50,7 +51,7 @@ public class Menu : Screen
 
     public void SelectPreviousItem()
     {
-        if(activeMenuItemID == 0)
+        if (activeMenuItemID == 0) // if at the first item, wrap around to the last
         {
             activeMenuItemID = menuItems.Count - 1;
         }
@@ -74,16 +75,16 @@ public class Menu : Screen
     {
         base.Draw();
 
-        for(int i = 0; i < menuItems.Count; i++)
+        for (int i = 0; i < menuItems.Count; i++)
         {
-            if(i == activeMenuItemID)
+            if (i == activeMenuItemID)
             {
                 Console.ForegroundColor = activeItemForegroundColor;
                 Console.BackgroundColor = activeItemBackgroundColor;
             }
             else
             {
-                Console.ForegroundColor = foregroundColor; //als het niet op het actievemenuitem is zetten we het op de default kleuren
+                Console.ForegroundColor = foregroundColor; // if not the active menu item, use the default colors
                 Console.BackgroundColor = backgroundColor;
             }
             menuItems[i].Draw();
