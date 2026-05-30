@@ -48,6 +48,10 @@ public class Game
     protected double respawnDuration = 2; // 2 seconds cooldown after respawning
     protected int score;
     protected int highestRow = 18; // keeps track of the highest row the player has reached
+    protected int startX = 20; // player start x position
+    protected int startY = 18; // player start y position
+    protected int startLives = 3; // player start lives
+    protected int roadWidth = 40; // road width
 
     public GameState CurrentGameState
     {
@@ -130,7 +134,7 @@ public class Game
                 if (currentGameState != previousGameState)
                 {
                     highScoresMenu.Draw(); // draw the title
-                    highScoresMenu.LoadHighscores(); // draw the list of highscores
+                    highScoresMenu.LoadHighscores(highscoreManager); // draw the list of highscores
                 }
                 break;
             case GameState.GameRunning:
@@ -153,19 +157,19 @@ public class Game
                 }
                 break;
             case GameState.NameInput:
-                if(currentGameState != previousGameState)
+                if (currentGameState != previousGameState)
                 {
                     ResetScreen();
                     nameInputScreen.Draw();
                 }
-            break;
+                break;
             case GameState.ColorPicker:
                 if (currentGameState != previousGameState)
                 {
                     ResetScreen();
                     colorPickerScreen.Draw();
                 }
-            break;
+                break;
         }
 
         previousGameState = currentGameState;
@@ -200,6 +204,7 @@ public class Game
             case GameState.HighscoresMenu:
                 if (key == ConsoleKey.Backspace)
                 {
+                    ResetScreen();
                     currentGameState = GameState.MainMenu;
                 }
                 break;
@@ -211,7 +216,7 @@ public class Game
                     if ((int)player.YPos < highestRow) // if player is higher than ever before
                     {
                         highestRow = (int)player.YPos; // update the highest row
-                        score ++; // add points
+                        score++; // add points
                         gameUI.UpdateUIElementValue("Score", score); // update the UI
                     }
 
@@ -251,7 +256,7 @@ public class Game
                     ResetScreen();
                     nameInputScreen.Draw(); // redraw the screen with the updated name (so that player sees the new letter being added)
                 }
-            break;
+                break;
             case GameState.ColorPicker:
                 if (key == ConsoleKey.Enter) // if enter is pressed confirm the color
                 {
@@ -272,7 +277,7 @@ public class Game
                     ResetScreen();
                     colorPickerScreen.Draw(); // redraw with new color
                 }
-            break;
+                break;
         }
     }
 
@@ -338,7 +343,7 @@ public class Game
 
                 if (player.Lives == 0) // if the player has no lives left
                 {
-                    highscoreManager.AddHighscore(nameInputScreen.PlayerName, score, "Yellow"); // saving highscore with placeholder color for now
+                    highscoreManager.AddHighscore(nameInputScreen.PlayerName, score, player.ForeColor.ToString()); // saving highscore
                     currentGameState = GameState.GameOver; // go to game over screen
                 }
                 break;
@@ -375,5 +380,23 @@ public class Game
             Console.WriteLine();
         }
         Console.SetCursorPosition(0, 0);
+    }
+
+    public void ResetGame()
+    {
+        ResetScreen(); //clear the screen first
+        road = new Road(roadWidth);
+        player.Lives = startLives;
+        player.XPos = startX;
+        player.YPos = startY;
+        score = 0;
+        gameStarted = false;
+        scrollTimer = 0;
+        lastSafeRow = startY;
+        highestRow = startY;
+        isRespawning = false;
+        nameInputScreen = new NameInputScreen();
+        gameUI.UpdateUIElementValue("Score", 0);
+        gameUI.UpdateUIElementValue("Lives", startLives);
     }
 }
