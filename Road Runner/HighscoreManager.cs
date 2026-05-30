@@ -2,10 +2,15 @@ using System.Text.Json;
 
 namespace TemplateVSCode;
 
-public class HighscoreManager
+public class HighscoreManager // saves and loads highscores
 {
     protected string filePath = "highscores.json";
     protected List<Highscore> highscores;
+
+    public List<Highscore> Highscores
+    {
+        get { return highscores; } // return the list of highscores
+    }
 
     public HighscoreManager()
     {
@@ -62,6 +67,27 @@ public class HighscoreManager
     public void AddHighscore(string newName, int newScore, string newColor)
     {
         highscores.Add(new Highscore(newName, newScore, newColor)); // add the new highscore to the list
+
+        // sort from highest to lowest score
+        for (int current = 0; current < highscores.Count - 1; current++) // loop through all scores
+        {
+            for (int next = current + 1; next < highscores.Count; next++) // compare with all scores after current
+            {
+                if(highscores[next].Score > highscores[current].Score) // if the next score is higher
+                {
+                    Highscore temp = highscores[current]; //temp save current score
+                    highscores[current] = highscores[next]; // replace with the higher score
+                    highscores[next] = temp;
+                } 
+            }
+        }
+
+        //keep only top 5
+        while(highscores.Count > 5)
+        {
+            highscores.RemoveAt(highscores.Count - 1);
+        }
+
         SaveHighScores(); // immediately save to file
     }
 }

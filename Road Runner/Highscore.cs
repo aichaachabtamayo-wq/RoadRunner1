@@ -1,6 +1,6 @@
 namespace TemplateVSCode;
 
-public class Highscore
+public class Highscore // saves name, score and color
 {
     protected string name;
     protected int score;
@@ -22,6 +22,11 @@ public class Highscore
     {
         get { return color; }
         set { color = value; }
+    }
+
+    public Highscore() //parameterless constructor needed for JSON deserialization
+    {
+        
     }
 
     public Highscore(string newName, int newScore, string newColor)
