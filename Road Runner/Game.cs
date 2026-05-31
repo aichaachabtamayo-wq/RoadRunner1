@@ -474,7 +474,7 @@ public class Game
         Console.SetCursorPosition(0, 0);
         Console.ForegroundColor = ConsoleColor.Black;
         Console.BackgroundColor = ConsoleColor.Black;
-        for (int i = 0; i < Console.WindowHeight; i++)
+        for (int i = 0; i < Console.WindowHeight + 1; i++)
         {
             for (int j = 0; j < Console.WindowWidth; j++)
             {
