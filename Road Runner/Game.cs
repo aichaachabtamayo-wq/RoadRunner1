@@ -55,6 +55,9 @@ public class Game
     protected int startY = 18; // player start y position
     protected int startLives = 3; // player start lives
     protected int roadWidth = 40; // road width
+    protected bool slowmotionActive = false; // to see if slowmotion is active or not
+    protected double slowmotionElapsed = 0; // how long slowmotion has been active
+    protected double slowmotionDuration = 10; // slowmotion lasts 10 sec
 
     public GameState CurrentGameState
     {
@@ -157,6 +160,11 @@ public class Game
                 foreach (Vehicle vehicle in road.Vehicles)
                 {
                     vehicle.Draw(vehicle.XPos, vehicle.YPos, vehicle.Symbol, vehicle.ForeColor, uiXOffset, uiYOffset);
+                }
+
+                foreach (Collectible collectible in road.Collectibles)
+                {
+                    collectible.Draw(collectible.XPos, collectible.YPos, collectible.Symbol, collectible.ForeColor, uiXOffset, uiYOffset); // draw each collectible
                 }
 
                 player.Draw(player.XPos, player.YPos, player.Symbol, player.ForeColor, uiXOffset, uiYOffset);
@@ -274,7 +282,7 @@ public class Game
                 if (key == ConsoleKey.Enter && nameInputScreen.PlayerName.Length > 0) //if enter is pressed and name is not empty
                 {
                     ResetScreen();
-                    currentGameState = GameState.ColorPicker; // start the game
+                    currentGameState = GameState.ColorPicker; // go to color picker
                 }
                 else
                 {
@@ -317,21 +325,41 @@ public class Game
             case GameState.GameRunning:
                 foreach (Vehicle vehicle in road.Vehicles)
                 {
-                    vehicle.Update(dt, width, height);
+                    if (slowmotionActive)
+                    {
+                        vehicle.Update(dt * 0.5, width, height); // half the speed when slowmotion is active
+                    }
+                    else
+                    {
+                        vehicle.Update(dt, width, height);
+                    }
                 }
+                road.UpdateCollectibles(dt, (int)player.YPos - uiYOffset); // update collectible timers and spawn new ones
                 gameUI.UpdateUIElementValue("Time", (int)stopwatch.ElapsedMilliseconds / 1000);
                 gameUI.UpdateUIElementValue("Lives", player.Lives);
 
                 bool hit = CheckCollision(); // check if the player is hit by a vehicle
+                CheckCollectibleCollision(); // check if player collected a collectible
 
                 if (hit && !isRespawning) // only process hit if player is not already respawning
                 {
-                    player.Lives--; // subtract a life
-                    player.YPos = lastSafeRow; // respawn at the last safe grass position
-                    player.XPos = 20; // respawn at the center of the screen
-                    isRespawning = true; // start the respawn cooldown
-                    respawnTimer = 0; // reset the timer so cooldown always lasts the full duration
-                    highestRow = lastSafeRow; // reset highestRow to respawn position so player can earn points again
+                    if (player.ShieldActive) // if shield is active, the hit is blocked
+                    {
+                        player.ShieldActive = false; // shield is used up after blocking the hit
+                        player.YPos = lastSafeRow; // respawn at last safe pos
+                        player.XPos = startX; // respawn at center
+                        isRespawning = true; // start respawn cooldown
+                        respawnTimer = 0; // reset timer
+                    }
+                    else
+                    {
+                        player.Lives--; // subtract a life
+                        player.YPos = lastSafeRow; // respawn at the last safe grass position
+                        player.XPos = 20; // respawn at the center of the screen
+                        isRespawning = true; // start the respawn cooldown
+                        respawnTimer = 0; // reset the timer so cooldown always lasts the full duration
+                        highestRow = lastSafeRow; // reset highestRow to respawn position so player can earn points again
+                    }
                 }
 
                 if (isRespawning)
@@ -341,6 +369,16 @@ public class Game
                     {
                         isRespawning = false; // player can move again
                         respawnTimer = 0;
+                    }
+                }
+
+                if (slowmotionActive) // if slowmotion is active
+                {
+                    slowmotionElapsed += dt; // increment elapsed time
+                    if (slowmotionElapsed >= slowmotionDuration) // if slowmotion duration is over
+                    {
+                        slowmotionActive = false; // deactivate slowmotion
+                        slowmotionElapsed = 0; // reset timer
                     }
                 }
 
@@ -365,6 +403,16 @@ public class Game
 
                         scrollTimer = 0; // reset the scroll timer
                     }
+                }
+
+                // increase scroll speed based on score
+                if (score >= 30)
+                {
+                    scrollSpeed = 2; // faster after score 30
+                }
+                if (score >= 60)
+                {
+                    scrollSpeed = 1; // even faster after score 60
                 }
 
                 if (player.Lives == 0) // if the player has no lives left
@@ -392,6 +440,35 @@ public class Game
         return hit;
     }
 
+    public void CheckCollectibleCollision()
+    {
+        for (int i = road.Collectibles.Count - 1; i >= 0; i--) // loop backwards through collectibles
+        {
+            if ((int)player.XPos == (int)road.Collectibles[i].XPos && (int)player.YPos == (int)road.Collectibles[i].YPos) // check if player is on the same position as the collectible
+            {
+                switch (road.Collectibles[i].Type) // check what type of collectible it is
+                {
+                    case CollectibleType.Coin:
+                        score += road.Collectibles[i].Points; // add points to score
+                        gameUI.UpdateUIElementValue("Score", score); // update the UI
+                        break;
+                    case CollectibleType.Shield:
+                        player.ShieldActive = true; // activate the shield
+                        score += road.Collectibles[i].Points; // add points to score
+                        gameUI.UpdateUIElementValue("Score", score); // update the UI
+                        break;
+                    case CollectibleType.Slowmotion:
+                        slowmotionActive = true; // activate slowmotion
+                        slowmotionElapsed = 0; // reset the timer
+                        score += road.Collectibles[i].Points; // add points to score
+                        gameUI.UpdateUIElementValue("Score", score); // update the UI
+                        break;
+                }
+                road.Collectibles.RemoveAt(i); // remove collectible after collecting
+            }
+        }
+    }
+
     public void ResetScreen()
     {
         Console.SetCursorPosition(0, 0);
@@ -410,7 +487,7 @@ public class Game
 
     public void ResetGame()
     {
-        ResetScreen(); //clear the screen first
+        ResetScreen(); // clear the screen first
         road = new Road(roadWidth);
         player.Lives = startLives;
         player.XPos = startX;
@@ -418,11 +495,15 @@ public class Game
         score = 0;
         gameStarted = false;
         scrollTimer = 0;
+        scrollSpeed = 3; // reset scroll speed
         lastSafeRow = startY;
         highestRow = startY;
         isRespawning = false;
+        slowmotionActive = false; // reset slowmotion
+        slowmotionElapsed = 0;
         nameInputScreen = new NameInputScreen();
         gameUI.UpdateUIElementValue("Score", 0);
         gameUI.UpdateUIElementValue("Lives", startLives);
+        gameUI.UpdateUIElementValue("Time", 0);
     }
 }
