@@ -15,6 +15,13 @@ public class Screen
         set { text = value; }
     }
 
+    public Screen()
+    {
+        foregroundColor = ConsoleColor.White;
+        backgroundColor = ConsoleColor.Black;
+        text = "";
+    }
+
     public Screen(string filepath)
     {
         foregroundColor = ConsoleColor.White;

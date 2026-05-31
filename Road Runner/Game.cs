@@ -7,6 +7,7 @@ public enum GameState
 {
     StartingScreen,
     MainMenu,
+    Instructions,
     HighscoresMenu,
     NameInput,
     ColorPicker,
@@ -31,10 +32,12 @@ public class Game
     protected Screen gameOverScreen;
     protected Menu mainMenu;
     protected HighscoresScreen highScoresMenu;
+    protected InstructionsScreen instructionsScreen;
     protected NameInputScreen nameInputScreen;
     protected ColorPickerScreen colorPickerScreen;
     protected StartGameMenuItem startGameMenuItem;
     protected HighscoresMenuItem highscoresMenuItem;
+    protected InstructionsMenuItem instructionsMenuItem;
     protected ExitGameMenuItem exitGameMenuItem;
     protected HighscoreManager highscoreManager;
     protected bool gameStarted = false;
@@ -52,9 +55,6 @@ public class Game
     protected int startY = 18; // player start y position
     protected int startLives = 3; // player start lives
     protected int roadWidth = 40; // road width
-    protected bool slowmotionActive = false; //to see if slowmotion is active or not
-    protected double slowmotionElapsed = 0; // how long slowmotion has been active
-    protected double slowmotionDuration = 10; // slowmotion lasts 10 sec
 
     public GameState CurrentGameState
     {
@@ -93,15 +93,19 @@ public class Game
         startingScreen = new Screen("StartingScreenTxt.txt");
         gameOverScreen = new Screen("GameOverScreenTxt.txt");
         mainMenu = new Menu("MainMenuTxt.txt", ConsoleColor.White, ConsoleColor.Black, ConsoleColor.White, ConsoleColor.DarkRed);
+        instructionsScreen = new InstructionsScreen();
         highScoresMenu = new HighscoresScreen();
         nameInputScreen = new NameInputScreen();
         colorPickerScreen = new ColorPickerScreen();
+
         startGameMenuItem = new StartGameMenuItem();
         highscoresMenuItem = new HighscoresMenuItem();
+        instructionsMenuItem = new InstructionsMenuItem();
         exitGameMenuItem = new ExitGameMenuItem();
 
         mainMenu.AddMenuItem(startGameMenuItem);
         mainMenu.AddMenuItem(highscoresMenuItem);
+        mainMenu.AddMenuItem(instructionsMenuItem);
         mainMenu.AddMenuItem(exitGameMenuItem);
 
         highscoreManager = new HighscoreManager(); // loads highscores automatically on creation
@@ -133,6 +137,13 @@ public class Game
                     mainMenu.Draw();
                 }
                 break;
+            case GameState.Instructions:
+                if (currentGameState != previousGameState)
+                {
+                    ResetScreen();
+                    instructionsScreen.Draw();
+                }
+                break;
             case GameState.HighscoresMenu:
                 if (currentGameState != previousGameState)
                 {
@@ -146,11 +157,6 @@ public class Game
                 foreach (Vehicle vehicle in road.Vehicles)
                 {
                     vehicle.Draw(vehicle.XPos, vehicle.YPos, vehicle.Symbol, vehicle.ForeColor, uiXOffset, uiYOffset);
-                }
-
-                foreach (Collectible collectible in road.Collectibles)
-                {
-                    collectible.Draw(collectible.XPos, collectible.YPos, collectible.Symbol, collectible.ForeColor, uiXOffset, uiYOffset); // draw each collectible
                 }
 
                 player.Draw(player.XPos, player.YPos, player.Symbol, player.ForeColor, uiXOffset, uiYOffset);
@@ -209,6 +215,13 @@ public class Game
                     mainMenu.SelectNextItem();
                 }
                 break;
+            case GameState.Instructions:
+                if (key == ConsoleKey.Enter)
+                {
+                    ResetScreen();
+                    currentGameState = GameState.NameInput;
+                }
+                break;
             case GameState.HighscoresMenu:
                 if (key == ConsoleKey.Backspace)
                 {
@@ -246,10 +259,15 @@ public class Game
                 break;
 
             case GameState.GameOver:
-                if (key == ConsoleKey.Spacebar)
+                if (key == ConsoleKey.Backspace)
                 {
                     ResetScreen();
                     currentGameState = GameState.MainMenu;
+                }
+                else if (key == ConsoleKey.Enter)
+                {
+                    ResetGame();
+                    currentGameState = GameState.NameInput;
                 }
                 break;
             case GameState.NameInput:
@@ -299,43 +317,21 @@ public class Game
             case GameState.GameRunning:
                 foreach (Vehicle vehicle in road.Vehicles)
                 {
-                    if(slowmotionActive)
-                    {
-                        vehicle.Update(dt * 0.5, width, height); //half the speed when slowmotion is active
-                    }
-                    else
-                    {
-                        vehicle.Update(dt, width, height);
-                    }
-                    
+                    vehicle.Update(dt, width, height);
                 }
-                road.UpdateCollectibles(dt, (int)player.YPos - uiYOffset); // update collectible timers and spawn new ones
                 gameUI.UpdateUIElementValue("Time", (int)stopwatch.ElapsedMilliseconds / 1000);
                 gameUI.UpdateUIElementValue("Lives", player.Lives);
 
                 bool hit = CheckCollision(); // check if the player is hit by a vehicle
-                CheckCollectibleCollision(); // check if player collected a collectible
 
                 if (hit && !isRespawning) // only process hit if player is not already respawning
                 {
-                    if (player.ShieldActive) // if shield is active, the hit is blocked
-                    {
-                        player.ShieldActive = false; // deactivate shield after absorbing hit
-                        player.YPos = lastSafeRow; //respawn at last safe pos
-                        player.XPos = startX; // respawn at center
-                        isRespawning = true; // start respawn cooldown
-                        respawnTimer = 0; // reset timer
-                    }
-                    else
-                    {
-                        player.Lives--; // subtract a life
-                        player.YPos = lastSafeRow; // respawn at the last safe grass position
-                        player.XPos = 20; // respawn at the center of the screen
-                        isRespawning = true; // start the respawn cooldown
-                        respawnTimer = 0; // reset the timer so cooldown always lasts the full duration
-                        highestRow = lastSafeRow; // reset highestRow to respawn position so player can earn points again
-                    }
-
+                    player.Lives--; // subtract a life
+                    player.YPos = lastSafeRow; // respawn at the last safe grass position
+                    player.XPos = 20; // respawn at the center of the screen
+                    isRespawning = true; // start the respawn cooldown
+                    respawnTimer = 0; // reset the timer so cooldown always lasts the full duration
+                    highestRow = lastSafeRow; // reset highestRow to respawn position so player can earn points again
                 }
 
                 if (isRespawning)
@@ -345,16 +341,6 @@ public class Game
                     {
                         isRespawning = false; // player can move again
                         respawnTimer = 0;
-                    }
-                }
-
-                if(slowmotionActive) //if slowmotion is active
-                {
-                    slowmotionElapsed += dt; //increment elapsed time
-                    if(slowmotionElapsed >= slowmotionDuration) //if slowmotion duration is over
-                    {
-                        slowmotionActive = false; // deactivate slowmotion
-                        slowmotionElapsed = 0; // reset timer
                     }
                 }
 
@@ -381,16 +367,6 @@ public class Game
                     }
                 }
 
-                //increase scroll speed based on score
-                if (score >= 30)
-                {
-                    scrollSpeed = 2; //faster after score 30
-                }
-                if (score >= 60)
-                {
-                    scrollSpeed = 1;
-                }
-
                 if (player.Lives == 0) // if the player has no lives left
                 {
                     highscoreManager.AddHighscore(nameInputScreen.PlayerName, score, player.ForeColor.ToString()); // saving highscore
@@ -414,36 +390,6 @@ public class Game
             }
         }
         return hit;
-    }
-
-    public void CheckCollectibleCollision()
-    {
-        for (int i = road.Collectibles.Count - 1; i >= 0; i--) //loop backwards through collectibles
-        {
-            if ((int)player.XPos == (int)road.Collectibles[i].XPos && (int)player.YPos == (int)road.Collectibles[i].YPos) //check if player is on the same position as the collectible
-            {
-                switch (road.Collectibles[i].Type) //check what type of collectible it is
-                {
-                    case CollectibleType.Coin:
-                        score += road.Collectibles[i].Points; // add points to score
-                        gameUI.UpdateUIElementValue("Score", score); // update the UI
-                        break;
-                    case CollectibleType.Shield:
-                        player.ShieldActive = true; // activate the shield
-                        score += road.Collectibles[i].Points; // add points to score
-                        gameUI.UpdateUIElementValue("Score", score); // update the UI
-                        break;
-                    case CollectibleType.Slowmotion:
-                        // slowmotion effect
-                        slowmotionActive = true; //activate slowmotion
-                        slowmotionElapsed = 0; // reset the timer
-                        score += road.Collectibles[i].Points; // add points to score
-                        gameUI.UpdateUIElementValue("Score", score); // update the UI
-                        break;
-                }
-                road.Collectibles.RemoveAt(i);
-            }
-        }
     }
 
     public void ResetScreen()

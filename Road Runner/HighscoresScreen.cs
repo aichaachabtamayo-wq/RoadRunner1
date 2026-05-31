@@ -15,7 +15,7 @@ public class HighscoresScreen : Screen // shows highscores
 
         foreach(Highscore hs in highscoreManager.Highscores) // loop through each highscore in the list
         {
-            Console.SetCursorPosition(5, y);
+            Console.SetCursorPosition(12, y);
             ConsoleColor color;
             Enum.TryParse(hs.Color, out color); // convert string to ConsoleColor
             Console.ForegroundColor = color; //use players color

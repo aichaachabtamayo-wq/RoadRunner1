@@ -1,12 +1,16 @@
 namespace TemplateVSCode;
 
-public class NameInputScreen
+public class NameInputScreen : Screen
 {
     protected string playerName = ""; // starts empty, gets filled as the player types
 
     public string PlayerName
     {
         get { return playerName; }
+    }
+    
+    public NameInputScreen() : base() // call the empty Screen constructor
+    {
     }
 
     public void Draw()

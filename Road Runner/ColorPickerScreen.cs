@@ -1,6 +1,6 @@
 namespace TemplateVSCode;
 
-public class ColorPickerScreen
+public class ColorPickerScreen : Screen
 {
     protected ConsoleColor[] colors =
     {
@@ -17,6 +17,10 @@ public class ColorPickerScreen
     public ConsoleColor SelectedColor
     {
         get { return colors[selectedIndex]; }
+    }
+
+    public ColorPickerScreen() : base() // call the empty Screen constructor
+    {
     }
 
     public void SelectNext()
