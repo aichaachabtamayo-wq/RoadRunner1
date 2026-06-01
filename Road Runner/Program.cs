@@ -20,7 +20,6 @@ class Program
         System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch(); // stopwatch that tracks how long each frame takes
         stopwatch.Start();
 
-        Reset(game);
         game.Draw();
         Console.SetCursorPosition(0, 0);
 
@@ -38,13 +37,7 @@ class Program
 
             Thread.Sleep(1000 / refreshRate); // wait to control the frame rate
 
-            //Reset(game); // reset cursor position before redrawing
             game.Draw();
         }
-    }
-
-    protected static void Reset(Game game)
-    {
-        Console.SetCursorPosition(0, 0); // move cursor to top left before redrawing
     }
 }
