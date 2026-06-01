@@ -177,6 +177,11 @@ public class Road
 
     public void SpawnCollectibles(CollectibleType type, int playerYPos)
     {
+        if(playerYPos <= 1) //when player is on the top line
+        {
+            return; //exits method without spawning collectible
+        }
+
         int x = rndGen.Next(1, width - 1); //random x pos
         int y = rndGen.Next(1, playerYPos); // spawn above the player
 

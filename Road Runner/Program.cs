@@ -13,7 +13,7 @@ class Program
 
     protected static void RunGameLoop(Game game)
     {
-        int refreshRate = 25;
+        int refreshRate = 60;
 
         Console.CursorVisible = false; // hide the cursor so it doesn't appear while typing
 
@@ -38,7 +38,7 @@ class Program
 
             Thread.Sleep(1000 / refreshRate); // wait to control the frame rate
 
-            Reset(game); // reset cursor position before redrawing
+            //Reset(game); // reset cursor position before redrawing
             game.Draw();
         }
     }

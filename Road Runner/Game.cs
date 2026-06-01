@@ -151,6 +151,7 @@ public class Game
                 if (currentGameState != previousGameState)
                 {
                     highScoresMenu.Draw(); // draw the title
+                    highScoresMenu.Index = 0;
                     highScoresMenu.LoadHighscores(highscoreManager); // draw the list of highscores
                 }
                 break;
@@ -165,6 +166,16 @@ public class Game
                 foreach (Collectible collectible in road.Collectibles)
                 {
                     collectible.Draw(collectible.XPos, collectible.YPos, collectible.Symbol, collectible.ForeColor, uiXOffset, uiYOffset); // draw each collectible
+                }
+
+                // temporarily change player color during respawn cooldown
+                if (isRespawning)
+                {
+                    player.ForeColor = ConsoleColor.Gray; // grijs tijdens cooldown
+                }
+                else
+                {
+                    player.ForeColor = colorPickerScreen.SelectedColor; // normale kleur
                 }
 
                 player.Draw(player.XPos, player.YPos, player.Symbol, player.ForeColor, uiXOffset, uiYOffset);
@@ -275,7 +286,8 @@ public class Game
                 else if (key == ConsoleKey.Enter)
                 {
                     ResetGame();
-                    currentGameState = GameState.NameInput;
+                    stopwatch.Restart();
+                    currentGameState = GameState.GameRunning;
                 }
                 break;
             case GameState.NameInput:
@@ -501,7 +513,7 @@ public class Game
         isRespawning = false;
         slowmotionActive = false; // reset slowmotion
         slowmotionElapsed = 0;
-        nameInputScreen = new NameInputScreen();
+        //nameInputScreen = new NameInputScreen();
         gameUI.UpdateUIElementValue("Score", 0);
         gameUI.UpdateUIElementValue("Lives", startLives);
         gameUI.UpdateUIElementValue("Time", 0);
