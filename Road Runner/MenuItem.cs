@@ -22,6 +22,6 @@ public class MenuItem
 
     public void Draw()
     {
-        Console.WriteLine("\n\t{0}\n", text);
+        Console.WriteLine("\n\t{0}\n", text); // name of button in the menu
     }
 }

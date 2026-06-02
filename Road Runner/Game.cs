@@ -29,10 +29,10 @@ public class Game
     protected Player player;
     protected Stopwatch stopwatch;
     protected Screen startingScreen;
+    protected Screen instructionsScreen;
     protected Screen gameOverScreen;
     protected Menu mainMenu;
     protected HighscoresScreen highScoresMenu;
-    protected InstructionsScreen instructionsScreen;
     protected NameInputScreen nameInputScreen;
     protected ColorPickerScreen colorPickerScreen;
     protected StartGameMenuItem startGameMenuItem;
@@ -95,8 +95,9 @@ public class Game
 
         startingScreen = new Screen("StartingScreenTxt.txt");
         gameOverScreen = new Screen("GameOverScreenTxt.txt");
+        instructionsScreen = new Screen("InstructionsTxt.txt");
+
         mainMenu = new Menu("MainMenuTxt.txt", ConsoleColor.White, ConsoleColor.Black, ConsoleColor.White, ConsoleColor.DarkRed);
-        instructionsScreen = new InstructionsScreen();
         highScoresMenu = new HighscoresScreen();
         nameInputScreen = new NameInputScreen();
         colorPickerScreen = new ColorPickerScreen();
@@ -362,6 +363,7 @@ public class Game
                         player.XPos = startX; // respawn at center
                         isRespawning = true; // start respawn cooldown
                         respawnTimer = 0; // reset timer
+                        highestRow = lastSafeRow; // reset highestRow so player can earn points again
                     }
                     else
                     {
