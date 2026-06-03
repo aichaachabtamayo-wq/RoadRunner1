@@ -188,6 +188,9 @@ public class Game
                 {
                     ResetScreen();
                     gameOverScreen.Draw();
+                    Console.SetCursorPosition(10, 14); // positie aanpassen naar wat er mooi uitziet
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write("Your score: " + score);
                 }
                 break;
             case GameState.NameInput:
@@ -236,10 +239,10 @@ public class Game
                 }
                 break;
             case GameState.Instructions:
-                if (key == ConsoleKey.Enter)
+                if (key == ConsoleKey.Backspace)
                 {
                     ResetScreen();
-                    currentGameState = GameState.NameInput;
+                    currentGameState = GameState.MainMenu;
                 }
                 break;
             case GameState.HighscoresMenu:
