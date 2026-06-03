@@ -12,6 +12,7 @@ public class StartGameMenuItem : MenuItem
 
     public override void Activate(Game game)
     {
-        game.CurrentGameState = GameState.GameRunning;
+        game.ResetGame();
+        game.CurrentGameState = GameState.NameInput; // go to name input screen first
     }
 }

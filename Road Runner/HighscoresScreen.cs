@@ -2,37 +2,32 @@ using System;
 
 namespace TemplateVSCode;
 
-public class HighscoresScreen : Screen
+public class HighscoresScreen : Screen // shows highscores
 {
+    protected int index = 0;
+    public int Index
+    {
+        set{index = value;}
+    }
     public HighscoresScreen() : base("HighscoresMenuTxt.txt")
     {
         
     }
 
-    public void LoadHighscores()
+    public void LoadHighscores(HighscoreManager highscoreManager) // to use the list of highscores
     {
-        string highscoresAsText = "";
-        StreamReader streamReader = null;
-        try
-        {
-            streamReader = new StreamReader("highscores.json"); 
+        int y = 15;
 
-            //read everything from file and parse to text
-            //add highscore as text to "highscoresAsText"
-
-            Console.WriteLine(highscoresAsText);
-        }
-        catch (Exception e)
+        foreach(Highscore hs in highscoreManager.Highscores) // loop through each highscore in the list
         {
-            Console.WriteLine("     No highscores yet");
+            index++;
+            Console.SetCursorPosition(8, y);
+            ConsoleColor color;
+            Enum.TryParse(hs.Color, out color); // convert string to ConsoleColor
+            Console.ForegroundColor = color; //use players color
+            Console.Write(index + ". " + hs.Name + " - " + hs.Score); //display name+score of this highscore
+            y++;
         }
-        finally
-        {
-            if(streamReader != null)
-            {
-                streamReader.Close();
-            }
-            
-        }
+        Console.ForegroundColor = ConsoleColor.White; // reset color to white so that elements drawn after the highscores are not affected by the player's color
     }
 }

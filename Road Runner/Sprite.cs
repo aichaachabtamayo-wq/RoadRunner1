@@ -4,7 +4,7 @@ namespace TemplateVSCode;
 
 public class Sprite : GameObject
 {
-    protected double xPos; //dit verzanderen van int naar double
+    protected double xPos; //changed this from int to double
     protected double yPos;
     public double XPos
     {
@@ -36,6 +36,9 @@ public class Sprite : GameObject
         Console.SetCursorPosition(CursorX + xOffset, CursorY + yOffset);
         Console.ForegroundColor = ForeColor;
         Console.Write(Symbol);
+        
+        // reset color to white so that elements drawn after the player are not affected by the player's color
+        Console.ForegroundColor = ConsoleColor.White; 
     }
     public virtual void Move()
     {
